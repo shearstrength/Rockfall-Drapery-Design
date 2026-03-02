@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rock Drapery System – Professional Design Tool</title>
+    <style>
+        body {font-family: Arial; background:#f2f4f7; padding:20px;}
+        .box {background:white; padding:20px; border-radius:10px; max-width:1000px; margin:auto;}
+        h2 {text-align:center;}
+        input {width:100%; padding:6px; margin-bottom:10px;}
+        button {background:#1f4e79; color:white; padding:10px; width:100%; border:none;}
+        button:hover {background:#163a5c;}
+        .results {background:#eef3f9; padding:15px; margin-top:20px; border-radius:8px;}
+    </style>
+</head>
+<body>
+
+<div class="box">
+<h2>Rockfall Drapery & Anchor Design</h2>
+
+<h3>Rock Slope</h3>
+Slope angle β (°)<input id="beta" value="40">
+Thickness s (m)<input id="s" value="1">
+Unit weight γ (kN/m³)<input id="gamma" value="22">
+Joint dip α (°)<input id="alpha" value="30">
+Friction angle φ (°)<input id="phi" value="45">
+Horizontal seismic CH<input id="CH" value="0.18">
+Vertical seismic CV<input id="CV" value="0.12">
+
+<h3>Anchor</h3>
+Spacing X (m)<input id="ix" value="3">
+Spacing Y (m)<input id="iy" value="3">
+Bar outer dia Φe (mm)<input id="phie" value="32">
+Bar inner dia Φi (mm)<input id="phii" value="19">
+Corrosion thickness tc (mm)<input id="tc" value="2.4">
+Yield stress fyk (MPa)<input id="fyk" value="560">
+Partial factor γA<input id="gammaA" value="1.15">
+
+<h3>Mesh</h3>
+Mesh lab capacity M0 (kN)<input id="M0" value="155">
+Mesh factor γmesh<input id="gammaMesh" value="2.5">
+
+<button onclick="calculate()">Calculate</button>
+
+<div class="results" id="output"></div>
+
+</div>
+
+<script>
+
+function calculate(){
+
+// Inputs
+let beta = parseFloat(beta.value)*Math.PI/180;
+let alpha = parseFloat(alpha.value)*Math.PI/180;
+let phi = parseFloat(phi.value)*Math.PI/180;
+let s = parseFloat(document.getElementById("s").value);
+let gamma = parseFloat(document.getElementById("gamma").value);
+let CH = parseFloat(document.getElementById("CH").value);
+let CV = parseFloat(document.getElementById("CV").value);
+let ix = parseFloat(document.getElementById("ix").value);
+let iy = parseFloat(document.getElementById("iy").value);
+
+let phie = parseFloat(document.getElementById("phie").value);
+let phii = parseFloat(document.getElementById("phii").value);
+let tc = parseFloat(document.getElementById("tc").value);
+let fyk = parseFloat(document.getElementById("fyk").value);
+let gammaA = parseFloat(document.getElementById("gammaA").value);
+let M0 = parseFloat(document.getElementById("M0").value);
+let gammaMesh = parseFloat(document.getElementById("gammaMesh").value);
+
+// Effective steel area
+let area = Math.PI/4 * ((phie-2*tc)**2 - phii**2);
+let Ne = area * fyk / 1000; // kN
+
+// Design tensile capacity
+let Fy_d = Ne / gammaA;
+
+// Weight of unstable block
+let W = ix * iy * s * gamma; // kN
+
+// Driving forces
+let WT = W * Math.sin(beta);
+let WHT = W * CH * Math.cos(beta);
+let WVT = W * CV * Math.sin(beta);
+let tauD = WT + WHT + WVT;
+
+// Resisting forces
+let WN = W * Math.cos(beta) * Math.tan(phi);
+let WHN = W * CH * Math.sin(beta) * Math.tan(phi);
+let WVN = W * CV * Math.cos(beta) * Math.tan(phi);
+let tauS = WN + WHN + WVN;
+
+// Required stabilizing
+let Rstab = tauD - tauS;
+
+// Safety factors
+let FOS_slope = (Fy_d + tauS)/tauD;
+let FOS_anchor = Fy_d / Rstab;
+let anchor_work = (Rstab/Fy_d)*100;
+
+// Nail length
+let tau_lim = 0.15; // MPa
+let gammaT = 1.8;
+let drill = 0.076; // m
+let P = Rstab;
+let Ls = (P) / (Math.PI*drill*tau_lim*1000/gammaT);
+let Li = s/Math.cos(beta);
+let L_total = Ls + Li + 0.3;
+
+// Mesh block
+let Bk = gamma * ix * iy * s / 10;
+let Bd = Bk*Math.sin(alpha);
+let Br = Bk*Math.cos(alpha)*Math.tan(phi);
+let Fd = Bd - Br;
+let Md = Fd*Math.sin(beta-alpha);
+
+// Mesh resistance
+let Mdesign = M0/gammaMesh;
+let FOS_mesh = Mdesign/Md;
+let mesh_work = (Md/Mdesign)*100;
+
+// Output
+output.innerHTML = `
+<h3>Results</h3>
+Slope FOS = <b>${FOS_slope.toFixed(2)}</b><br>
+Anchor FOS = <b>${FOS_anchor.toFixed(2)}</b><br>
+Anchor Working Rate = <b>${anchor_work.toFixed(1)} %</b><br><br>
+
+Required Anchor Length ≈ <b>${L_total.toFixed(2)} m</b><br><br>
+
+Mesh Punch FOS = <b>${FOS_mesh.toFixed(2)}</b><br>
+Mesh Working Rate = <b>${mesh_work.toFixed(1)} %</b>
+`;
+
+}
+
+</script>
+</body>
+</html>
