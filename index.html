@@ -54,7 +54,6 @@ Global safety factor(yDF = γR x yD) <input id="yDF" value=" ">
 Coefficient applied on the yield stress of the bar (yA)<input id="yA" value=" ">
 Coefficient applied on the bond stress (yT)<input id="yT" value=" ">
 
-  
 <button onclick="calculate()">Calculate</button>
 <div class="results" id="output"></div>
 </div>
@@ -65,27 +64,34 @@ function rad(x){return x*Math.PI/180;}
 function calculate(){
 
 // ================= INPUTS =================
-let β = rad(parseFloat(beta.value));
+function rad(x){return x * Math.PI / 180;}
+let beta = rad(parseFloat(document.getElementById("beta").value));
 let s = parseFloat(document.getElementById("s").value);
-let γ = parseFloat(document.getElementById("gamma").value);
-let α = rad(parseFloat(document.getElementById("alpha").value));
-let Φ = rad(parseFloat(document.getElementById("phi").value));
-let CH = parseFloat(document.getElementById("CH").value);
-let CV = parseFloat(document.getElementById("CV").value);
-
-let iX = parseFloat(document.getElementById("ix").value);
-let iY = parseFloat(document.getElementById("iy").value);
-
-let Φe = parseFloat(document.getElementById("phie").value);
-let Φi = parseFloat(document.getElementById("phii").value);
+let gamma = parseFloat(document.getElementById("gamma").value);
+let alpha = rad(parseFloat(document.getElementById("alpha").value));
+let JCSo = parseFloat(document.getElementById("JCSo").value);
+let JRCo = parseFloat(document.getElementById("JRCo").value);
+let Ch = parseFloat(document.getElementById("Ch").value);
+let Cv = parseFloat(document.getElementById("Cv").value);
+let E = parseFloat(document.getElementById("E").value);
+let phi = rad(parseFloat(document.getElementById("phi").value));
+let ix = parseFloat(document.getElementById("ix").value);
+let iy = parseFloat(document.getElementById("iy").value);
+let epsilon = rad(parseFloat(document.getElementById("epsilon").value));
+let alphaB = parseFloat(document.getElementById("alphaB").value);
+let phie = parseFloat(document.getElementById("phie").value);
+let phii = parseFloat(document.getElementById("phii").value);
+let phidrill = parseFloat(document.getElementById("phidrill").value);
 let tc = parseFloat(document.getElementById("tc").value);
 let fyk = parseFloat(document.getElementById("fyk").value);
-let γA = parseFloat(document.getElementById("gammaA").value);
-let τlim = parseFloat(document.getElementById("taulim").value);
-let γT = parseFloat(document.getElementById("gammaT").value);
-
+let gammaA = parseFloat(document.getElementById("gammaA").value);
+let taulim = parseFloat(document.getElementById("taulim").value);
+let gammaT = parseFloat(document.getElementById("gammaTb").value);
 let M0 = parseFloat(document.getElementById("M0").value);
-let γmesh = parseFloat(document.getElementById("gammaMesh").value);
+let Mmesh = parseFloat(document.getElementById("Mmesh").value);
+let gammaR = parseFloat(document.getElementById("gammaR").value);
+let gammaD = parseFloat(document.getElementById("gammaD").value);
+let gammaDF = parseFloat(document.getElementById("gammaDF").value);
 
 // ================= EFFECTIVE STEEL AREA =================
 // Ne = π/4((Φe-2tc)^2 - Φi^2) fyk
