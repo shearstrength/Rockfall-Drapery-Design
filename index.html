@@ -241,14 +241,16 @@ log("FOS Mesh",FOS_Mesh);
 let MeshWorkingRate = (Md/Meshdesign)*100;
 log("Mesh Working Rate",MeshWorkingRate,"%");
 
-        document.getElementById("output").innerHTML = logText;
-        document.getElementById("output").innerHTML = `
-            <h3>RESULTS</h3>
-            <b>1) Anchor FOS (Slope):</b> ${FOS_Slope.toFixed(2)}<br>
-            <b>2) Anchor Working Rate:</b> ${AnchorWR.toFixed(1)} %<br>
-            <b>3) Mesh FOS:</b> ${FOS_Mesh.toFixed(2)}<br>
-            <b>4) Mesh Working Rate:</b> ${(Md/MeshDesign*100).toFixed(1)} %
-        `;
+        //output
+        logText += `
+<br><h3>RESULTS</h3>
+<b>1) Anchor FOS (Slope):</b> ${FOS_Slope.toFixed(2)}<br>
+<b>2) Anchor Working Rate:</b> ${AnchorWorkingRate.toFixed(1)} %<br>
+<b>3) Mesh FOS:</b> ${FOS_Mesh.toFixed(2)}<br>
+<b>4) Mesh Working Rate:</b> ${MeshWorkingRate.toFixed(1)} %
+`;
+
+document.getElementById("output").innerHTML = logText;
     } catch (err) {
         document.getElementById("output").innerHTML = "<span style='color:red'>Error in calculation. Check input values.</span>";
     }
