@@ -21,38 +21,38 @@ Inclination of the slope (β) <input id="beta" type="">
 Thickness of the surficial instability (s) <input id="s" type="">
 Density of the rock (γ) <input id="gamma" type="">
 Dip of the set of joints (α) <input id="alpha" type="">
-Compressive strength of the Critical joint (JCSo) <input id="JCSo" type="">
-Roughness Coefficient of the critical joint (JRCo) <input id="JRCo" type="">
+Compressive strength of the Critical joint (JCSo) <input id="JCSo" type="5">
+Roughness Coefficient of the critical joint (JRCo) <input id="JRCo" type="1">
 Horizontal seismic coefficient (Ch) <input id="Ch" type="">
 Vertical seismic coefficient (Cv) <input id="Cv" type="">
-External force (E) <input id="E" type="">
-Angle of the external force from horizontal (ω) <input id="omega" type="">
+External force (E) <input id="E" type="0">
+Angle of the external force from horizontal (ω) <input id="omega" type="90">
 
 <h3>B) Site Environmental Level</h3>
-Thickness of corrosion on anchor bar (tc) <input id="tc" type="">
+Thickness of corrosion on anchor bar (tc) <input id="tc" type="2.40">
 
 <h3>C) Anchor Bar</h3>
 Horizontal spacing between the anchors (iX) <input id="ix" type="">
 Vertical spacing between the anchors (iY) <input id="iy" type="">
 Inclination of the bar to the horizontal (ε) <input id="epsilon" type="">
-Coefficient (Bustamante, Doix, 1985) (αB) <input id="alphaB" type="">
+Coefficient (Bustamante, Doix, 1985) (αB) <input id="alphaB" type="1.0">
 External diameter of the anchor bar (Φe mm) <input id="phie" type="">
 Inner diameter of the anchor bar (Φi mm) <input id="phii" type="">
 Drilling diameter (Φdrill mm) <input id="phidrill" type="">
 Yield tensile stress of the anchor fyk (MPa) <input id="fyk" type="">
 Bond stress between grout and rock (τlim MPa) <input id="taulim" type="">
-Assumed plasticization between rock and slope (Lp m) <input id="Lp" type="">
+Assumed plasticization between rock and slope (Lp m) <input id="Lp" type="0.30">
 
 <h3>D) Mesh</h3>
 Punch resistance lab condition M0 (kN) <input id="M0" type="">
 Punch resistance slope condition Mmesh (kN) <input id="Mmesh" type="">
 
 <h3>E) Safety Coefficients</h3>
-Coefficient applied to resistances (γR) <input id="gammaR" type="">
-Coefficient applied to destabilization actions (γD) <input id="gammaD" type="">
-Coefficient applied on the tensile and the punch resistance (γmesh) <input id="gammamesh" type="">
-Coefficient applied on yield stress of bar (γA) <input id="gammaA" type="">
-Coefficient applied on bond stress (γT) <input id="gammaT" type="">
+Coefficient applied to resistances (γR) <input id="gammaR" type="1.25">
+Coefficient applied to destabilization actions (γD) <input id="gammaD" type="1.20">
+Coefficient applied on the tensile and the punch resistance (γmesh) <input id="gammamesh" type="1.50">
+Coefficient applied on yield stress of bar (γA) <input id="gammaA" type="1.15">
+Coefficient applied on bond stress (γT) <input id="gammaT" type="1.80">
 
 <button onclick="calculate()">Calculate</button>
 <div class="results" id="output"></div>
@@ -143,11 +143,14 @@ let AnchorWorkingRate = (Rstab/Fyd)*100;
 
 // ================= Mesh =================
 
-let Md = 10;
-let Meshdesign = Mmesh/gammamesh;
+let Md = Fd*Math.sin((beta-alpha)); //kN
+let Mdv = Fd*math.cos((beta-alpha); //kN
+let Meshdesign = Mmesh/gammamesh; //kN
 
+//Factor of Resistance for punching of the mesh, FOSR_Defl
 let FOS_Mesh = Meshdesign/Md;
-let MeshWorkingRate = (Md/Meshdesign)*100;
+let MeshWorkingRate = (Md/Meshdesign)*100; // %
+
 
 // ================= OUTPUT =================
 
