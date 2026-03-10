@@ -48,7 +48,7 @@
     
     C) Mesh & Safety
     Punch Res. Lab M0 (kN) <input id="M0" value="80">
-    Punch Res. Slope Mmesh (kN) <input id="Mmesh" value="32">
+    Punch Res. Slope Mmesh (kN) <input id="Mmesh" value="33">
     γR (Resist) <input id="gammaR" value="1.25">
     γD (Destab) <input id="gammaD" value="1.20">
     γmesh <input id="gammamesh" value="1.5">
@@ -125,7 +125,7 @@ let delta = (1/3) * JRCn * Math.log10(JCSn / sigmaN);
 log("Delta",delta);
 
 let mm = 1 / Math.tan(theta0 + delta);
-log("m",mm);
+log("mm",mm);
 
 let Fyk = Math.sqrt((1 + Math.pow(mm,2)/16) / (1 + Math.pow(mm,2)/4)) * Ne;
 log("Fyk",Fyk,"N");
