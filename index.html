@@ -14,7 +14,7 @@ h3{margin-top:20px;}
 <body>
 
 <div class="box">
-<h2>Rock Drapery – Complete Excel Logic Version</h2>
+<h2> Secured Rock Drapery Design Calculations </h2>
 
 <h3>A) Rock Slope</h3>
 Inclination of the slope (β) <input id="beta" type="">
@@ -26,7 +26,7 @@ Roughness Coefficient of the critical joint (JRCo) <input id="JRCo" type="">
 Horizontal seismic coefficient (Ch) <input id="Ch" type="">
 Vertical seismic coefficient (Cv) <input id="Cv" type="">
 External force (E) <input id="E" type="">
-Angle of the external force from horizontal (Φ) <input id="phi" type="">
+Angle of the external force from horizontal (ω) <input id="omega" type="">
 
 <h3>B) Site Environmental Level</h3>
 Thickness of corrosion on anchor bar (tc) <input id="tc" type="">
@@ -74,7 +74,7 @@ let JRCo = parseFloat(document.getElementById("JRCo").value);
 let Ch = parseFloat(document.getElementById("Ch").value);
 let Cv = parseFloat(document.getElementById("Cv").value);
 let E = parseFloat(document.getElementById("E").value);
-let phi = rad(parseFloat(document.getElementById("phi").value));
+let omega = rad(parseFloat(document.getElementById("omega").value));
 
 let ix = parseFloat(document.getElementById("ix").value);
 let iy = parseFloat(document.getElementById("iy").value);
@@ -86,7 +86,7 @@ let phii = parseFloat(document.getElementById("phii").value);
 let phidrill = parseFloat(document.getElementById("phidrill").value);
 
 let tc = parseFloat(document.getElementById("tc").value);
-let fyk = parseFloat(document.getElementById("fyk").value);
+let fytensile = parseFloat(document.getElementById("fyk").value);
 let gammaA = parseFloat(document.getElementById("gammaA").value);
 
 let taulim = parseFloat(document.getElementById("taulim").value);
@@ -99,31 +99,58 @@ let gammaR = parseFloat(document.getElementById("gammaR").value);
 let gammaD = parseFloat(document.getElementById("gammaD").value);
 let gammaDF = parseFloat(document.getElementById("gammaDF").value);
 
-// ================= EFFECTIVE STEEL AREA =================
-// Ne = π/4((Φe-2tc)^2 - Φi^2) fyk
+// ================= A) Resistance / Stabilizing contribution of the Anchors =================
 
-let Aeff = Math.PI/4 * (Math.pow(Φe-2*tc,2) - Math.pow(Φi,2));
-let Ne = Aeff * fyk; // N
-let Fy_k = Ne; // elastic
-let Fy_d = (Ne/1000)/γA; // kN
+let effectiveArea = (Math.PI/4) * (Math.pow((phie - 2*tc),2) - Math.pow(phii,2)); // m2
+let Ne = effectiveArea * fyk; // N
+let theta0 = rad(90) - beta - epsilon; // Degree
+let sigmaN = s * gamma * Math.cos(alpha); // kN/m2
+let Ln = iy; // m
+let Lo = 0.1; // m
+let JRCn = JRCo * Math.pow((Ln/Lo),(-0.02 * JRCo));
+let JCSn = JCSo * Math.pow((Ln/Lo),(-0.03 * JCSo)); // MPa
+let delta = (1/3) * JRCn * Math.log10(JCSn / sigmaN);
+let mm = 1 / Math.tan(theta0 + delta);
+let Fyk = Math.sqrt((1 + Math.pow(mm,2)/16) / (1 + Math.pow(mm,2)/4)) * Ne; // N
+let Fyd = (Fyk / gammaA)/1000; // kN
+let TBar = (fytensile * effectiveArea) / (gammaA * 1000) ; // kN
 
 // ================= WEIGHT OF UNSTABLE MASS =================
-// W = iX * iY * s * γ
 
-let W = iX*iY*s*γ; // kN
+// W = iX * iY * s * γ
+let W = iX * iY * s * gamma; // N
 
 // ================= DRIVING FORCES =================
-let WT = W*Math.sin(β);
-let WHT = W*CH*Math.cos(β);
-let WVT = W*CV*Math.sin(β);
+let WT = W * Math.sin(beta)* gammaD; // N
+let WHT = W * Ch * Math.cos(beta);  // N
+let WVT = W * Cv * Math.sin(beta);  // N
+let ET = E * Math.cos(rad(90) - omega)* gammaD * 1000; // N
+let EHT = E * Ch * Math.cos(beta) * 1000;  // N
+let EVT = E * Cv * Math.sin(beta) * 1000;  // N
 
-let τD = WT + WHT + WVT;
+let tauD = (WT + WHT + WVT + ET + EHT + EVT)/1000; // kN
 
 // ================= RESISTING FORCES =================
-let WN = W*Math.cos(β)*Math.tan(Φ);
-let WHN = W*CH*Math.sin(β)*Math.tan(Φ);
-let WVN = W*CV*Math.cos(β)*Math.tan(Φ);
 
+let phi = 45; 
+let WN = W * Math.sin(beta) * gammaR;// N
+let WHN = W * Ch * Math.sin(beta)*Math.tan(phi);// N
+let WVN = W * Cv * Math.cos(beta)*Math.tan(phi);// N
+let EN = -E * Math.sin(rad(90) - omega) * Math.tan(Φ) / GammaR;// N
+let EHN = E*Ch*Math.sin(β)*Math.tan(Φ);// N
+let EVN = E*Cv*Math.cos(β)*Math.tan(Φ);// N
+
+let tauR = (WN + EVN - EN - EHN - WHN)/1000; // kN
+
+
+
+
+
+
+
+  
+
+  
 let τS = WN + WHN + WVN;
 
 // ================= REQUIRED STABILIZING =================
