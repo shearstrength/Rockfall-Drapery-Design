@@ -49,8 +49,9 @@ Punch resistance slope condition Mmesh (kN) <input id="Mmesh" type="">
 
 <h3>E) Safety Coefficients</h3>
 Coefficient applied to resistances (γR) <input id="gammaR" type="">
-Coefficient applied to actions (γD) <input id="gammaD" type="">
-Global safety factor (γDF) <input id="gammaDF" type="">
+Coefficient applied to destabilization actions (γD) <input id="gammaD" type="">
+// Global safety factor (γDF)
+Coefficient applied on the tensile and the punch resistance (γmesh) <input id="gammamesh" type="">
 Coefficient applied on yield stress of bar (γA) <input id="gammaA" type="">
 Coefficient applied on bond stress (γT) <input id="gammaT" type="">
 
@@ -98,8 +99,8 @@ let Mmesh = parseFloat(document.getElementById("Mmesh").value);
 
 let gammaR = parseFloat(document.getElementById("gammaR").value);
 let gammaD = parseFloat(document.getElementById("gammaD").value);
-let gammaDF = parseFloat(document.getElementById("gammaDF").value);
-
+let gammamesh = parseFloat(document.getElementById("gammamesh").value);
+  
 // ================= A) Resistance / Stabilizing contribution of the Anchors =================
 
 let effectiveArea = (Math.PI/4) * (Math.pow((phie - 2*tc),2) - Math.pow(phii,2)); // m2
@@ -145,7 +146,7 @@ let tauS = (WN + EVN - EN - EHN - WHN)/1000; // kN
 // The Stabilizing force required for the equilibrium becomes Rstabd
 let Rstab = tauD - tauS;
 
-let FOS_slope = (Fyd + tauS)/tauD;
+let FOS_Slope = (Fyd + tauS)/tauD;
 let FOS_anchor = Fyd/Rstab;
 let AnchorWorkingRate = (Rstab/Fyd)*100; // %
 
@@ -162,46 +163,50 @@ let Lt_final = Math.round((Math.ceil(Lt*100)/100) / 0.5) * 0.5; // m
 
 // ================= C) MESH DESIGN =================
 
-// Sliding block
-let h = iY*Math.sin(rad(40-30))/Math.sin(rad(180-40-10));
-let Bk = γ*iX*h*(iY/2);
+// To check the shape of block that can move among the anchors ( Triangular / Trapezoid) _ if ; ATAN( s / (s*tan(θo ) + iy) ) > (β  - α), Triangular otherwise Trapezoid
+let lhs = Math.atan(s / (s * Math.tan(theta0) + iy));
+let rhs = beta - alpha;
+let shape, b, h;
 
-let BT = Bk*Math.sin(α);
-let BHT = Bk*CH*Math.cos(α);
-let BVT = Bk*CV*Math.sin(α);
+if (lhs > rhs) {shape = "Triangular"; b = 0; h = (iy * Math.sin(beta - alpha) / Math.sin(Math.PI - beta - epsilon)) / 1.0955;} 
+else {shape = "Trapezoidal";    b = iy - (s / Math.tan(beta - alpha)) + s * Math.tan(theta0); h = s;}
 
-let BD = BT + BHT + BVT;
+// Sliding Block weight
+let Bk = gamma * ix * h * ((iy + b) / 2); //kN
+ 
+// ================= BLOCK DRIVING FORCES =================
+let BT = Bk*Math.sin(alpha) / gammaD;
+let BHT = Bk*Ch*Math.cos(alpha);
+let BVT = Bk*Cv*Math.sin(alpha);
 
-let BN = Bk*Math.cos(α)*Math.tan(Φ);
-let BHN = Bk*CH*Math.sin(α)*Math.tan(Φ);
-let BVN = Bk*CV*Math.cos(α)*Math.tan(Φ);
+let BD = BT + BHT + BVT; // kN
+  
+// ================= BLOCK RESISTING FORCES =================
+let BN = Bk*Math.sin(alpha)/gammaR;
+let BHN = Bk*Ch*Math.sin(alpha)*Math.tan(phi);
+let BVN = Bk*Cv*Math.cos(alpha)*Math.tan(phi);
 
-let BR = BN + BHN + BVN;
+let BR = BN + BHN + BVN; // kN
+// The design force developed by the block moving among the anchor, Fd
+let Fd = BD - BR; // kN
 
-let Fd = BD - BR;
+// Punch force acting on the Mesh Design value, Md
+let Md = Fd*Math.sin((beta-alpha)); //kN
+let Mdv = Fd*math.cos((beta-alpha); //kN
+let Meshdesign = Mmesh/gammamesh; //kN
 
-let Md = Fd*Math.sin(rad(40-30));
-
-let Mdesign = M0/γmesh;
-
-let FOS_mesh = Mdesign/Md;
-let MeshWorking = (Md/Mdesign)*100;
+//Factor of Resistance for punching of the mesh, FOSR_Defl
+let FOS_Mesh = Meshdesign/Md;
+let MeshWorkingRate = (Md/Meshdesign)*100; // %
 
 // ================= OUTPUT =================
 
-output.innerHTML = `
-<h3>RESULTS</h3>
-Slope FOS = <b>${FOS_slope.toFixed(2)}</b><br>
-Anchor FOS = <b>${FOS_anchor.toFixed(2)}</b><br>
-Anchor Working Rate = <b>${AnchorWorking.toFixed(1)} %</b><br><br>
-
-Required Anchor Length = <b>${Ltotal.toFixed(2)} m</b><br><br>
-
-Mesh Punch FOS = <b>${FOS_mesh.toFixed(2)}</b><br>
-Mesh Working Rate = <b>${MeshWorking.toFixed(1)} %</b>
-`;
-
-}
+  document.getElementById("output").innerHTML =
+"<h3>RESULTS</h3>" +
+"1) Anchor FOS (Slope) = <b>" + FOS_slope.toFixed(2) + "</b><br>" +
+"2) Anchor Working Rate = <b>" + AnchorWorkingRate.toFixed(1) + " %</b><br>" +
+"3) Mesh FOS = <b>" + FOS_Mesh.toFixed(2) + "</b><br>" +
+"4) Mesh Working Rate = <b>" + MeshWorkingRate.toFixed(1) + " %</b>";
 
 </script>
 </body>
