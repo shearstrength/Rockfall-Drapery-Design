@@ -95,43 +95,153 @@ function calculate() {
         let gammaT = parseFloat(document.getElementById("gammaT").value);
 
         // --- CALCULATIONS ---
-        // 1. Anchor Resistance
-        let effArea = (Math.PI / 4) * (Math.pow((phie - 2 * tc), 2) - Math.pow(phii, 2)); // mm2
-        let Ne = effArea * fyk; // N
-        let theta0 = (Math.PI / 2) - beta - epsilon;
-        
-        let sigmaN = s * gamma * Math.cos(alpha);
-        let JRCn = JRCo * Math.pow((iy / 0.1), (-0.02 * JRCo));
-        let JCSn = JCSo * Math.pow((iy / 0.1), (-0.03 * JCSo));
-        let delta = rad((1 / 3) * JRCn * Math.log10(JCSn / (sigmaN / 1000 || 0.1))); 
-        
-        let mm = 1 / Math.tan(theta0 + delta);
-        let Fyk = Math.sqrt((1 + Math.pow(mm, 2) / 16) / (1 + Math.pow(mm, 2) / 4)) * Ne;
-        let Fyd = (Fyk / gammaA) / 1000; // kN
+       // ================= Resistance / Stabilizing contribution of the Anchors =================
 
-        // 2. Forces
-        let W = ix * iy * s * gamma; // kN
-        let tauD = (W * (Math.sin(beta) * gammaD + Ch * Math.cos(beta) + Cv * Math.sin(beta))) + 
-                   (E * (Math.cos((Math.PI/2) - omega) * gammaD));
-        
-        let phi = rad(45); 
-        let tauS = (W * Math.sin(beta) * gammaR) / 2; // Simplified resistance for example
-        let Rstab = tauD - tauS;
+let effectiveArea = (Math.PI/4) * (Math.pow((phie - 2*tc),2) - Math.pow(phii,2));
+log("Effective Area",effectiveArea,"m²");
 
-        // 3. Results
-        let FOS_Slope = (Fyd + tauS) / tauD;
-        let AnchorWR = (Rstab / Fyd) * 100;
+let Ne = effectiveArea * fyk;
+log("Ne",Ne,"N");
 
-        // 4. Mesh
-        let lhs = Math.atan(s / (s * Math.tan(theta0) + iy));
-        let rhs = beta - alpha;
-        let h = (lhs > rhs) ? (iy * Math.sin(beta - alpha)) : s;
-        let Bk = gamma * ix * h * iy; 
-        let Fd = Bk * (Math.sin(alpha) * gammaD);
-        let Md = Fd * Math.sin(beta - alpha);
-        let MeshDesign = Mmesh / gammamesh;
-        let FOS_Mesh = MeshDesign / Md;
+let theta0 = rad(90) - beta - epsilon;
+log("Theta0",theta0,"rad");
 
+let sigmaN = s * gamma * Math.cos(alpha);
+log("SigmaN",sigmaN,"kN/m²");
+
+let Ln = iy;
+log("Ln",Ln,"m");
+
+let Lo = 0.1;
+log("Lo",Lo,"m");
+
+let JRCn = JRCo * Math.pow((Ln/Lo),(-0.02 * JRCo));
+log("JRCn",JRCn);
+
+let JCSn = JCSo * Math.pow((Ln/Lo),(-0.03 * JCSo));
+log("JCSn",JCSn,"MPa");
+
+let delta = (1/3) * JRCn * Math.log10(JCSn / sigmaN);
+log("Delta",delta);
+
+let mm = 1 / Math.tan(theta0 + delta);
+log("m",mm);
+
+let Fyk = Math.sqrt((1 + Math.pow(mm,2)/16) / (1 + Math.pow(mm,2)/4)) * Ne;
+log("Fyk",Fyk,"N");
+
+let Fyd = (Fyk / gammaA)/1000;
+log("Fyd",Fyd,"kN");
+
+let TBar = (fytensile * effectiveArea) / (gammaA * 1000);
+log("TBar",TBar,"kN");
+
+// ================= WEIGHT OF UNSTABLE MASS =================
+
+let W = ix * iy * s * gamma;
+log("Weight W",W,"kN");
+
+// ================= DRIVING FORCES =================
+
+let WT = W * Math.sin(beta)* gammaD;
+log("WT",WT,"N");
+
+let WHT = W * Ch * Math.cos(beta);
+log("WHT",WHT,"N");
+
+let WVT = W * Cv * Math.sin(beta);
+log("WVT",WVT,"N");
+
+let ET = E * Math.cos(rad(90) - omega)* gammaD * 1000;
+log("ET",ET,"N");
+
+let EHT = E * Ch * Math.cos(beta) * 1000;
+log("EHT",EHT,"N");
+
+let EVT = E * Cv * Math.sin(beta) * 1000;
+log("EVT",EVT,"N");
+
+let tauD = (WT + WHT + WVT + ET + EHT + EVT)/1000;
+log("Driving Force tauD",tauD,"kN");
+
+// ================= RESISTING FORCES =================
+
+let phi = 45;
+log("Phi",phi,"deg");
+
+let WN = W * Math.sin(beta) * gammaR;
+log("WN",WN);
+
+let WHN = W * Ch * Math.sin(beta)*Math.tan(phi);
+log("WHN",WHN);
+
+let WVN = W * Cv * Math.cos(beta)*Math.tan(phi);
+log("WVN",WVN);
+
+let tauS = (WN + WVN - WHN)/1000;
+log("Resisting Force tauS",tauS,"kN");
+
+let Rstab = tauD - tauS;
+log("Required Stabilizing Force Rstab",Rstab,"kN");
+
+let FOS_Slope = (Fyd + tauS)/tauD;
+log("FOS Slope",FOS_Slope);
+
+let FOS_anchor = Fyd/Rstab;
+log("FOS Anchor",FOS_anchor);
+
+let AnchorWorkingRate = (Rstab/Fyd)*100;
+log("Anchor Working Rate",AnchorWorkingRate,"%");
+
+// ================= BLOCK WEIGHT =================
+
+let Bk = gamma * ix * h * ((iy + b) / 2);
+log("Block Weight Bk",Bk,"kN");
+
+// ================= BLOCK FORCES =================
+
+let BT = Bk*Math.sin(alpha) / gammaD;
+log("BT",BT);
+
+let BHT = Bk*Ch*Math.cos(alpha);
+log("BHT",BHT);
+
+let BVT = Bk*Cv*Math.sin(alpha);
+log("BVT",BVT);
+
+let BD = BT + BHT + BVT;
+log("Block Driving BD",BD,"kN");
+
+let BN = Bk*Math.sin(alpha)/gammaR;
+log("BN",BN);
+
+let BHN = Bk*Ch*Math.sin(alpha)*Math.tan(phi);
+log("BHN",BHN);
+
+let BVN = Bk*Cv*Math.cos(alpha)*Math.tan(phi);
+log("BVN",BVN);
+
+let BR = BN + BHN + BVN;
+log("Block Resistance BR",BR,"kN");
+
+let Fd = BD - BR;
+log("Design Force Fd",Fd,"kN");
+
+// ================= MESH =================
+
+let Md = Fd*Math.sin((beta-alpha));
+log("Mesh Punch Force Md",Md,"kN");
+
+let Meshdesign = Mmesh/gammamesh;
+log("Mesh Design Capacity",Meshdesign,"kN");
+
+let FOS_Mesh = Meshdesign/Md;
+log("FOS Mesh",FOS_Mesh);
+
+let MeshWorkingRate = (Md/Meshdesign)*100;
+log("Mesh Working Rate",MeshWorkingRate,"%");
+
+        document.getElementById("output").innerHTML = logText;
         document.getElementById("output").innerHTML = `
             <h3>RESULTS</h3>
             <b>1) Anchor FOS (Slope):</b> ${FOS_Slope.toFixed(2)}<br>
