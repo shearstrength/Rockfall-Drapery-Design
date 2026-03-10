@@ -41,7 +41,7 @@ Inner diameter of the anchor bar (Φi mm) <input id="phii" type="">
 Drilling diameter (Φdrill mm) <input id="phidrill" type="">
 Yield tensile stress of the anchor fyk (MPa) <input id="fyk" type="">
 Bond stress between grout and rock (τlim MPa) <input id="taulim" type="">
-Assumed plasticization between rock and slope (γT) <input id="gammaT" type="">
+Assumed plasticization between rock and slope (Lp m) <input id="Lp" type="">
 
 <h3>D) Mesh</h3>
 Punch resistance lab condition M0 (kN) <input id="M0" type="">
@@ -52,7 +52,7 @@ Coefficient applied to resistances (γR) <input id="gammaR" type="">
 Coefficient applied to actions (γD) <input id="gammaD" type="">
 Global safety factor (γDF) <input id="gammaDF" type="">
 Coefficient applied on yield stress of bar (γA) <input id="gammaA" type="">
-Coefficient applied on bond stress (γT) <input id="gammaTb" type="">
+Coefficient applied on bond stress (γT) <input id="gammaT" type="">
 
 <button onclick="calculate()">Calculate</button>
 <div class="results" id="output"></div>
@@ -88,9 +88,10 @@ let phidrill = parseFloat(document.getElementById("phidrill").value);
 let tc = parseFloat(document.getElementById("tc").value);
 let fytensile = parseFloat(document.getElementById("fyk").value);
 let gammaA = parseFloat(document.getElementById("gammaA").value);
+let gammaT = parseFloat(document.getElementById("gammaT").value);
 
 let taulim = parseFloat(document.getElementById("taulim").value);
-let gammaT = parseFloat(document.getElementById("gammaTb").value);
+let Lp = parseFloat(document.getElementById("Lp").value);
 
 let M0 = parseFloat(document.getElementById("M0").value);
 let Mmesh = parseFloat(document.getElementById("Mmesh").value);
@@ -131,7 +132,6 @@ let EVT = E * Cv * Math.sin(beta) * 1000;  // N
 let tauD = (WT + WHT + WVT + ET + EHT + EVT)/1000; // kN
 
 // ================= RESISTING FORCES =================
-
 let phi = 45; 
 let WN = W * Math.sin(beta) * gammaR;// N
 let WHN = W * Ch * Math.sin(beta)*Math.tan(phi);// N
@@ -140,40 +140,27 @@ let EN = -E * Math.sin(rad(90) - omega) * Math.tan(Φ) / GammaR;// N
 let EHN = E*Ch*Math.sin(β)*Math.tan(Φ);// N
 let EVN = E*Cv*Math.cos(β)*Math.tan(Φ);// N
 
-let tauR = (WN + EVN - EN - EHN - WHN)/1000; // kN
+let tauS = (WN + EVN - EN - EHN - WHN)/1000; // kN
 
+// The Stabilizing force required for the equilibrium becomes Rstabd
+let Rstab = tauD - tauS;
 
+let FOS_slope = (Fyd + tauS)/tauD;
+let FOS_anchor = Fyd/Rstab;
+let AnchorWorkingRate = (Rstab/Fyd)*100; // %
 
-
-
-
-
+// ================= B) Nail Length Evaluation =================
   
+// mim theortical length of the anchor (Lt)
+let Lt = Ls + Li + Lp; // m
+let Li = (s * gammaD)/math.cos(theta0); // m
+let P1 = Rstab * math.cos(rad(90)-theta0); // N
+let P2 = Md * math.cos(theta0) + Mdv*math.sin(theta0); // N
+let P = Math.max(P1,P2); // N
+let Ls = ((P* gammaT)/(math.PI * phidrill *taulim))/1000 // m
+let Lt_final = Math.round((Math.ceil(Lt*100)/100) / 0.5) * 0.5; // m
 
-  
-let τS = WN + WHN + WVN;
-
-// ================= REQUIRED STABILIZING =================
-let Rstab = τD - τS;
-
-// ================= SAFETY FACTORS =================
-let FOS_slope = (Fy_d + τS)/τD;
-let FOS_anchor = Fy_d/Rstab;
-let AnchorWorking = (Rstab/Fy_d)*100;
-
-// ================= NAIL LENGTH =================
-// P = Rstab (kN -> N)
-
-let P = Rstab*1000;
-
-let drill = 0.076; // m
-let Ls = P/(Math.PI*drill*τlim*1000000/γT);
-let Li = s/Math.cos(β);
-let Lp = 0.30;
-
-let Ltotal = Ls + Li + Lp;
-
-// ================= MESH DESIGN =================
+// ================= C) MESH DESIGN =================
 
 // Sliding block
 let h = iY*Math.sin(rad(40-30))/Math.sin(rad(180-40-10));
