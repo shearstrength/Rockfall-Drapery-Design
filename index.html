@@ -1,148 +1,214 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Drapery & Anchor Design – Full Excel Logic</title>
-    <style>
-        body{font-family:Arial;background:#f2f4f7;padding:20px;}
-        .box{background:white;padding:20px;border-radius:10px;max-width:1100px;margin:auto;}
-        input{width:100%;padding:6px;margin-bottom:8px;box-sizing: border-box;}
-        button{background:#1f4e79;color:white;padding:15px;width:100%;border:none;cursor:pointer;font-weight:bold;}
-        button:hover{background:#2c6aa3;}
-        .results{background:#eef3f9;padding:15px;margin-top:20px;border-radius:8px; border-left: 5px solid #1f4e79;}
-        h3{margin-top:20px; border-bottom: 1px solid #ccc; padding-bottom: 5px;}
-    </style>
+<title>Drapery & Anchor Design – Full Excel Logic</title>
+<style>
+body{font-family:Arial;background:#f2f4f7;padding:20px;}
+.box{background:white;padding:20px;border-radius:10px;max-width:1100px;margin:auto;}
+input{width:100%;padding:6px;margin-bottom:8px;}
+button{background:#1f4e79;color:white;padding:10px;width:100%;border:none;}
+.results{background:#eef3f9;padding:15px;margin-top:20px;border-radius:8px;}
+h3{margin-top:20px;}
+</style>
 </head>
 <body>
 
 <div class="box">
-    <h2>Secured Rock Drapery Design Calculations</h2>
+<h2> Secured Rock Drapery Design Calculations </h2>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div>
-            ### A) Rock Slope
-            Inclination (β°) <input id="beta" value="45">
-            Thickness (s m) <input id="s" value="1.5">
-            Density (γ kN/m³) <input id="gamma" value="25">
-            Dip of joints (α°) <input id="alpha" value="30">
-            Compressive strength (JCSo MPa) <input id="JCSo" value="50">
-            Roughness Coeff (JRCo) <input id="JRCo" value="10">
-            Horiz. Seismic (Ch) <input id="Ch" value="0.1">
-            Vert. Seismic (Cv) <input id="Cv" value="0.05">
-            Ext. Force (E kN) <input id="E" value="0">
-            Force Angle (ω°) <input id="omega" value="0">
-        </div>
-        <div>
-            ### B) Site & Anchor
-            Corrosion (tc mm) <input id="tc" value="2">
-            H-Spacing (iX m) <input id="ix" value="2">
-            V-Spacing (iY m) <input id="iy" value="2">
-            Bar Inclination (ε°) <input id="epsilon" value="15">
-            Yield Stress (fyk MPa) <input id="fyk" value="500">
-            Ext. Dia (Φe mm) <input id="phie" value="32">
-            Inner Dia (Φi mm) <input id="phii" value="0">
-            Drill Dia (Φdrill mm) <input id="phidrill" value="75">
-            Bond Stress (τlim MPa) <input id="taulim" value="0.5">
-            Plasticization (Lp m) <input id="Lp" value="0.5">
-        </div>
-    </div>
+<h3>A) Rock Slope</h3>
+Inclination of the slope (β) <input id="beta" type="65">
+Thickness of the surficial instability (s) <input id="s" type="0.30">
+Density of the rock (γ) <input id="gamma" type="24">
+Dip of the set of joints (α) <input id="alpha" type="25">
+Compressive strength of the Critical joint (JCSo) <input id="JCSo" type="5">
+Roughness Coefficient of the critical joint (JRCo) <input id="JRCo" type="1">
+Horizontal seismic coefficient (Ch) <input id="Ch" type="0.18">
+Vertical seismic coefficient (Cv) <input id="Cv" type="0.12">
+External force (E) <input id="E" type="">
+Angle of the external force from horizont0) <input id="omega" type="90">
 
-    ### D) Mesh & Safety
-    Punch Res. Lab M0 (kN) <input id="M0" value="80">
-    Punch Res. Slope Mmesh (kN) <input id="Mmesh" value="60">
-    γR (Resist) <input id="gammaR" value="1.0">
-    γD (Destab) <input id="gammaD" value="1.35">
-    γmesh <input id="gammamesh" value="1.5">
-    γA (Anchor) <input id="gammaA" value="1.15">
-    γT (Bond) <input id="gammaT" value="1.5">
+<h3>B) Site Environmental Level</h3>
+Thickness of corrosion on anchor bar (tc) <input id="tc" type="2.40">
 
-    <button onclick="calculate()">Calculate Design</button>
-    <div class="results" id="output">Results will appear here...</div>
+<h3>C) Anchor Bar</h3>
+Horizontal spacing between the anchors (iX) <input id="ix" type="3">
+Vertical spacing between the anchors (iY) <input id="iy" type="3">
+Inclination of the bar to the horizontal (ε) <input id="epsilon" type="10">
+Coefficient (Bustamante, Doix, 1985) (αB) <input id="alphaB" type="1.0">
+External diameter of the anchor bar (Φe mm) <input id="phie" type="32">
+Inner diameter of the anchor bar (Φi mm) <input id="phii" type="18">
+Drilling diameter (Φdrill mm) <input id="phidrill" type="76">
+Yield tensile stress of the anchor fyk (MPa) <input id="fyk" type="560">
+Bond stress between grout and rock (τlim MPa) <input id="taulim" type="0.25">
+Assumed plasticization between rock and slope (Lp m) <input id="Lp" type="0.30">
+
+<h3>D) Mesh</h3>
+Punch resistance lab condition M0 (kN) <input id="M0" type="80">
+Punch resistance slope condition Mmesh (kN) <input id="Mmesh" type="33">
+
+<h3>E) Safety Coefficients</h3>
+Coefficient applied to resistances (γR) <input id="gammaR" type="1.25">
+Coefficient applied to destabilization actions (γD) <input id="gammaD" type="1.20">
+Coefficient applied on the tensile and the punch resistance (γmesh) <input id="gammamesh" type="1.50">
+Coefficient applied on yield stress of bar (γA) <input id="gammaA" type="1.15">
+Coefficient applied on bond stress (γT) <input id="gammaT" type="1.80">
+
+<button onclick="calculate()">Calculate</button>
+<div class="results" id="output"></div>
 </div>
-
 <script>
-function rad(x) { return x * Math.PI / 180; }
 
-function calculate() {
-    try {
-        // --- INPUTS ---
-        let beta = rad(parseFloat(document.getElementById("beta").value));
-        let s = parseFloat(document.getElementById("s").value);
-        let gamma = parseFloat(document.getElementById("gamma").value);
-        let alpha = rad(parseFloat(document.getElementById("alpha").value));
-        let JCSo = parseFloat(document.getElementById("JCSo").value);
-        let JRCo = parseFloat(document.getElementById("JRCo").value);
-        let Ch = parseFloat(document.getElementById("Ch").value);
-        let Cv = parseFloat(document.getElementById("Cv").value);
-        let E = parseFloat(document.getElementById("E").value);
-        let omega = rad(parseFloat(document.getElementById("omega").value));
+function rad(x){return x*Math.PI/180;}
 
-        let ix = parseFloat(document.getElementById("ix").value);
-        let iy = parseFloat(document.getElementById("iy").value);
-        let epsilon = rad(parseFloat(document.getElementById("epsilon").value));
-        let phie = parseFloat(document.getElementById("phie").value);
-        let phii = parseFloat(document.getElementById("phii").value);
-        let phidrill = parseFloat(document.getElementById("phidrill").value);
-        let tc = parseFloat(document.getElementById("tc").value);
-        let fyk = parseFloat(document.getElementById("fyk").value);
-        let taulim = parseFloat(document.getElementById("taulim").value);
-        let Lp = parseFloat(document.getElementById("Lp").value);
+function calculate(){
 
-        let Mmesh = parseFloat(document.getElementById("Mmesh").value);
-        let gammaR = parseFloat(document.getElementById("gammaR").value);
-        let gammaD = parseFloat(document.getElementById("gammaD").value);
-        let gammamesh = parseFloat(document.getElementById("gammamesh").value);
-        let gammaA = parseFloat(document.getElementById("gammaA").value);
-        let gammaT = parseFloat(document.getElementById("gammaT").value);
+// ================= INPUTS =================
+function rad(x){return x * Math.PI / 180;}
+let beta = rad(parseFloat(document.getElementById("beta").value));
+let s = parseFloat(document.getElementById("s").value);
+let gamma = parseFloat(document.getElementById("gamma").value);
+let alpha = rad(parseFloat(document.getElementById("alpha").value);
+let JCSo = parseFloat(document.getElementById("JCSo").value);
+let JRCo = parseFloat(document.getElementById("JRCo").value);
+let Ch = parseFloat(document.getElementById("Ch").value);
+let Cv = parseFloat(document.getElementById("Cv").value);
+let E = parseFloat(document.getElementById("E").value);
+let omega = rad(parseFloat(document.getElementById("omega").value));
 
-        // --- CALCULATIONS ---
-        // 1. Anchor Resistance
-        let effArea = (Math.PI / 4) * (Math.pow((phie - 2 * tc), 2) - Math.pow(phii, 2)); // mm2
-        let Ne = effArea * fyk; // N
-        let theta0 = (Math.PI / 2) - beta - epsilon;
-        
-        let sigmaN = s * gamma * Math.cos(alpha);
-        let JRCn = JRCo * Math.pow((iy / 0.1), (-0.02 * JRCo));
-        let JCSn = JCSo * Math.pow((iy / 0.1), (-0.03 * JCSo));
-        let delta = rad((1 / 3) * JRCn * Math.log10(JCSn / (sigmaN / 1000 || 0.1))); 
-        
-        let mm = 1 / Math.tan(theta0 + delta);
-        let Fyk = Math.sqrt((1 + Math.pow(mm, 2) / 16) / (1 + Math.pow(mm, 2) / 4)) * Ne;
-        let Fyd = (Fyk / gammaA) / 1000; // kN
+let ix = parseFloat(document.getElementById("ix").value);
+let iy = parseFloat(document.getElementById("iy").value);
+let epsilon = rad(parseFloat(document.getElementById("epsilon").value));
+let alphaB = parseFloat(document.getElementById("alphaB").value);
 
-        // 2. Forces
-        let W = ix * iy * s * gamma; // kN
-        let tauD = (W * (Math.sin(beta) * gammaD + Ch * Math.cos(beta) + Cv * Math.sin(beta))) + 
-                   (E * (Math.cos((Math.PI/2) - omega) * gammaD));
-        
-        let phi = rad(45); 
-        let tauS = (W * Math.sin(beta) * gammaR) / 2; // Simplified resistance for example
-        let Rstab = tauD - tauS;
+let phie = parseFloat(document.getElementById("phie").value);
+let phii = parseFloat(document.getElementById("phii").value);
+let phidrill = parseFloat(document.getElementById("phidrill").value);
 
-        // 3. Results
-        let FOS_Slope = (Fyd + tauS) / tauD;
-        let AnchorWR = (Rstab / Fyd) * 100;
+let tc = parseFloat(document.getElementById("tc").value);
+let fytensile = parseFloat(document.getElementById("fyk").value);
+let gammaA = parseFloat(document.getElementById("gammaA").value);
+let gammaT = parseFloat(document.getElementById("gammaT").value);
 
-        // 4. Mesh
-        let lhs = Math.atan(s / (s * Math.tan(theta0) + iy));
-        let rhs = beta - alpha;
-        let h = (lhs > rhs) ? (iy * Math.sin(beta - alpha)) : s;
-        let Bk = gamma * ix * h * iy; 
-        let Fd = Bk * (Math.sin(alpha) * gammaD);
-        let Md = Fd * Math.sin(beta - alpha);
-        let MeshDesign = Mmesh / gammamesh;
-        let FOS_Mesh = MeshDesign / Md;
+let taulim = parseFloat(document.getElementById("taulim").value);
+let Lp = parseFloat(document.getElementById("Lp").value);
 
-        document.getElementById("output").innerHTML = `
-            <h3>RESULTS</h3>
-            <b>1) Anchor FOS (Slope):</b> ${FOS_Slope.toFixed(2)}<br>
-            <b>2) Anchor Working Rate:</b> ${AnchorWR.toFixed(1)} %<br>
-            <b>3) Mesh FOS:</b> ${FOS_Mesh.toFixed(2)}<br>
-            <b>4) Mesh Working Rate:</b> ${(Md/MeshDesign*100).toFixed(1)} %
-        `;
-    } catch (err) {
-        document.getElementById("output").innerHTML = "<span style='color:red'>Error in calculation. Check input values.</span>";
-    }
+let M0 = parseFloat(document.getElementById("M0").value);
+let Mmesh = parseFloat(document.getElementById("Mmesh").value);
+
+let gammaR = parseFloat(document.getElementById("gammaR").value);
+let gammaD = parseFloat(document.getElementById("gammaD").value);
+let gammamesh = parseFloat(document.getElementById("gammamesh").value);
+  
+// ================= A) Resistance / Stabilizing contribution of the Anchors =================
+
+let effectiveArea = (Math.PI/4) * (Math.pow((phie - 2*tc),2) - Math.pow(phii,2)); // m2
+let Ne = effectiveArea * fyk; // N
+let theta0 = rad(90) - beta - epsilon; // Degree
+let sigmaN = s * gamma * Math.cos(alpha); // kN/m2
+let Ln = iy; // m
+let Lo = 0.1; // m
+let JRCn = JRCo * Math.pow((Ln/Lo),(-0.02 * JRCo));
+let JCSn = JCSo * Math.pow((Ln/Lo),(-0.03 * JCSo)); // MPa
+let delta = (1/3) * JRCn * Math.log10(JCSn / sigmaN);
+let mm = 1 / Math.tan(theta0 + delta);
+let Fyk = Math.sqrt((1 + Math.pow(mm,2)/16) / (1 + Math.pow(mm,2)/4)) * Ne; // N
+let Fyd = (Fyk / gammaA)/1000; // kN
+let TBar = (fytensile * effectiveArea) / (gammaA * 1000) ; // kN
+
+// ================= WEIGHT OF UNSTABLE MASS =================
+
+// W = iX * iY * s * γ
+let W = iX * iY * s * gamma; // N
+
+// ================= DRIVING FORCES =================
+let WT = W * Math.sin(beta)* gammaD; // N
+let WHT = W * Ch * Math.cos(beta);  // N
+let WVT = W * Cv * Math.sin(beta);  // N
+let ET = E * Math.cos(rad(90) - omega)* gammaD * 1000; // N
+let EHT = E * Ch * Math.cos(beta) * 1000;  // N
+let EVT = E * Cv * Math.sin(beta) * 1000;  // N
+
+let tauD = (WT + WHT + WVT + ET + EHT + EVT)/1000; // kN
+
+// ================= RESISTING FORCES =================
+let phi = 45; 
+let WN = W * Math.sin(beta) * gammaR;// N
+let WHN = W * Ch * Math.sin(beta)*Math.tan(phi);// N
+let WVN = W * Cv * Math.cos(beta)*Math.tan(phi);// N
+let EN = -E * Math.sin(rad(90) - omega) * Math.tan(Φ) / GammaR;// N
+let EHN = E*Ch*Math.sin(β)*Math.tan(Φ);// N
+let EVN = E*Cv*Math.cos(β)*Math.tan(Φ);// N
+
+let tauS = (WN + EVN - EN - EHN - WHN)/1000; // kN
+
+// The Stabilizing force required for the equilibrium becomes Rstabd
+let Rstab = tauD - tauS;
+
+let FOS_Slope = (Fyd + tauS)/tauD;
+let FOS_anchor = Fyd/Rstab;
+let AnchorWorkingRate = (Rstab/Fyd)*100; // %
+
+// ================= B) Nail Length Evaluation =================
+  
+// mim theortical length of the anchor (Lt)
+let Lt = Ls + Li + Lp; // m
+let Li = (s * gammaD)/math.cos(theta0); // m
+let P1 = Rstab * math.cos(rad(90)-theta0); // N
+let P2 = Md * math.cos(theta0) + Mdv*math.sin(theta0); // N
+let P = Math.max(P1,P2); // N
+let Ls = ((P* gammaT)/(math.PI * phidrill *taulim))/1000 // m
+let Lt_final = Math.round((Math.ceil(Lt*100)/100) / 0.5) * 0.5; // m
+
+// ================= C) MESH DESIGN =================
+
+// To check the shape of block that can move among the anchors ( Triangular / Trapezoid) _ if ; ATAN( s / (s*tan(θo ) + iy) ) > (β  - α), Triangular otherwise Trapezoid
+let lhs = Math.atan(s / (s * Math.tan(theta0) + iy));
+let rhs = beta - alpha;
+let shape, b, h;
+
+if (lhs > rhs) {shape = "Triangular"; b = 0; h = (iy * Math.sin(beta - alpha) / Math.sin(Math.PI - beta - epsilon)) / 1.0955;} 
+else {shape = "Trapezoidal";    b = iy - (s / Math.tan(beta - alpha)) + s * Math.tan(theta0); h = s;}
+
+// Sliding Block weight
+let Bk = gamma * ix * h * ((iy + b) / 2); //kN
+ 
+// ================= BLOCK DRIVING FORCES =================
+let BT = Bk*Math.sin(alpha) / gammaD;
+let BHT = Bk*Ch*Math.cos(alpha);
+let BVT = Bk*Cv*Math.sin(alpha);
+
+let BD = BT + BHT + BVT; // kN
+  
+// ================= BLOCK RESISTING FORCES =================
+let BN = Bk*Math.sin(alpha)/gammaR;
+let BHN = Bk*Ch*Math.sin(alpha)*Math.tan(phi);
+let BVN = Bk*Cv*Math.cos(alpha)*Math.tan(phi);
+
+let BR = BN + BHN + BVN; // kN
+// The design force developed by the block moving among the anchor, Fd
+let Fd = BD - BR; // kN
+
+// Punch force acting on the Mesh Design value, Md
+let Md = Fd*Math.sin((beta-alpha)); //kN
+let Mdv = Fd*math.cos((beta-alpha); //kN
+let Meshdesign = Mmesh/gammamesh; //kN
+
+//Factor of Resistance for punching of the mesh, FOSR_Defl
+let FOS_Mesh = Meshdesign/Md;
+let MeshWorkingRate = (Md/Meshdesign)*100; // %
+
+// ================= OUTPUT =================
+
+  document.getElementById("output").innerHTML =
+"<h3>RESULTS</h3>" +
+"1) Anchor FOS (Slope) = <b>" + FOS_slope.toFixed(2) + "</b><br>" +
+"2) Anchor Working Rate = <b>" + AnchorWorkingRate.toFixed(1) + " %</b><br>" +
+"3) Mesh FOS = <b>" + FOS_Mesh.toFixed(2) + "</b><br>" +
+"4) Mesh Working Rate = <b>" + MeshWorkingRate.toFixed(1) + " %</b>";
+
 }
+
 </script>
 </body>
 </html>
